@@ -3,6 +3,7 @@ package com.example.demo;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -12,23 +13,26 @@ public class Greeting {
 
 	@Id
 	@Column(name="id")
-	@GeneratedValue
-    private final long id;
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Integer id;
 
 	@Column(name="name")
-	private final String name;
+	private String name;
 
-    public Greeting(long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public long getId() {
-        return id;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getName() {
-        return name;
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }
