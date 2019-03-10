@@ -1,25 +1,72 @@
-version: '3.3'
+version: '3'
 services:
-  db:
-    image: mysql:5.7
+  nginx:
+    container_name: Spring-greeting-nginx
+    image: nginx:1.13
     restart: always
-    environment:
-      MYSQL_DATABASE: 'greetings'
-      # So you don't have to use root, but you can if you like
-      MYSQL_USER: 'greetingUser'
-      # You can use whatever password you like
-      MYSQL_PASSWORD: '1234'
-      # Password for root access
-      MYSQL_ROOT_PASSWORD: '1234'
     ports:
-      # <Port exposed> : < MySQL Port running inside container>
-      - '3306:3306'
+      - 80:80
+      - 443:443
+    volumes:
+      - ./app.conf:/etc/nginx/conf.d/app.conf
+    depends_on:
+      - greetings-app
+
+  mysql:
+    container_name: some-mysql
+    image: mysql/mysql-server:5.7
+    environment:
+      MYSQL_DATABASE: greetings
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_USER: 'greetingUser'
+      MYSQL_PASSWORD: '1234'
+    ports:
+      - "3306:3306"
     expose:
       # Opens port 3306 on the container
       - '3306'
-      # Where our data will be persisted
+    restart: always
+
+  greetings-app:
+    restart: always
+    build:
+        context: ../Spring-MVC
+        dockerfile: ../docker/Dockerfile
+    working_dir: /Spring-MVC
     volumes:
-      - my-db:/var/lib/mysql
-# Names our volume
-volumes:
-  my-db:
+      - ../Spring-MVC:/Spring-MVC
+        #- ~/.m2:/root/.m2
+    expose:
+      - "8080"
+    command: mvn clean spring-boot:run
+    depends_on:
+      - mysql
+
+
+
+
+# services:
+#   db:
+#     image: mysql:5.7
+#     restart: always
+#     environment:
+#       MYSQL_DATABASE: 'greetings'
+#       # So you don't have to use root, but you can if you like
+#       MYSQL_USER: 'greetingUser'
+#       # You can use whatever password you like
+#       MYSQL_PASSWORD: '1234'
+#       # Password for root access
+#       MYSQL_ROOT_PASSWORD: '1234'
+#     ports:
+#       # <Port exposed> : < MySQL Port running inside container>
+#       - '3306:3306'
+#     expose:
+#       # Opens port 3306 on the container
+#       - '3306'
+#       # Where our data will be persisted
+#     volumes:
+#       - my-db:/var/lib/mysql
+# # Names our volume
+# volumes:
+#   my-db:
